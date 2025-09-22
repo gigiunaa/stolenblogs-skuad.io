@@ -80,14 +80,28 @@ def clean_article(article):
 
 def extract_blog_content(html: str):
     soup = BeautifulSoup(html, "html.parser")
+    wrapper = soup.new_tag("div")
+
+    # 🔹 მთავარი h1 და სურათი (text-align-center-დან)
+    h1_block = soup.select_one("div.text-align-center h1")
+    img_block = soup.select_one("div.text-align-center img")
+
+    if h1_block:
+        wrapper.append(h1_block)
+    if img_block:
+        wrapper.append(img_block)
+
+    # 🔹 articles
     articles = soup.find_all("article", class_="blog-details-rich")
     if articles:
-        wrapper = soup.new_tag("div")
         for art in articles:
             wrapper.append(art)
         return clean_article(wrapper)
+
+    # fallback
     article = soup.find("article") or soup.body
-    return clean_article(article)
+    wrapper.append(article)
+    return clean_article(wrapper)
 
 @app.route("/scrape-blog", methods=["POST"])
 def scrape_blog():
@@ -102,6 +116,7 @@ def scrape_blog():
 
         soup = BeautifulSoup(resp.text, "html.parser")
 
+        # Title
         title = None
         if soup.title and soup.title.string:
             title = soup.title.string.strip()
@@ -109,10 +124,12 @@ def scrape_blog():
         if h1 and not title:
             title = h1.get_text(strip=True)
 
+        # Content
         article = extract_blog_content(resp.text)
         if not article:
             return Response("Could not extract blog content", status=422)
 
+        # Images
         images = extract_images(article)
         image_names = [f"image{i+1}.png" for i in range(len(images))]
 
