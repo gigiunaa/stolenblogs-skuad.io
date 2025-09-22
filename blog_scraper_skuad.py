@@ -87,16 +87,19 @@ def extract_blog_content(html: str):
     if h1_block:
         wrapper.append(h1_block)
 
-    # 🔹 მთავარი სურათი: <img> ან <source srcset>
+    # 🔹 მთავარი სურათი
     main_img_url = ""
-    img_block = soup.select_one("div.text-align-center img")
-    if img_block and img_block.get("src"):
-        main_img_url = img_block["src"].strip()
 
+    # 1) სცადე py-blog-image source[srcset]
+    source_block = soup.select_one("div.py-blog-image source")
+    if source_block and source_block.get("srcset"):
+        main_img_url = source_block["srcset"].split(",")[0].split()[0].strip()
+
+    # 2) fallback: text-align-center img
     if not main_img_url:
-        source_block = soup.select_one("div.text-align-center source")
-        if source_block and source_block.get("srcset"):
-            main_img_url = source_block["srcset"].split(",")[0].split()[0].strip()
+        img_block = soup.select_one("div.text-align-center img")
+        if img_block and img_block.get("src"):
+            main_img_url = img_block["src"].strip()
 
     if main_img_url:
         img_tag = soup.new_tag("img", src=main_img_url, alt="Main Image")
