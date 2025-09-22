@@ -1,5 +1,5 @@
-flask
-flask-cors
-requests
-beautifulsoup4
-gunicorn
+flask==3.1.2
+flask-cors==6.0.1
+requests==2.32.5
+beautifulsoup4==4.13.5
+gunicorn==23.0.0
