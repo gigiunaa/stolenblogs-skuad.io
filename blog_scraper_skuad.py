@@ -82,14 +82,25 @@ def extract_blog_content(html: str):
     soup = BeautifulSoup(html, "html.parser")
     wrapper = soup.new_tag("div")
 
-    # 🔹 მთავარი h1 და სურათი (text-align-center-დან)
+    # 🔹 მთავარი h1
     h1_block = soup.select_one("div.text-align-center h1")
-    img_block = soup.select_one("div.text-align-center img")
-
     if h1_block:
         wrapper.append(h1_block)
-    if img_block:
-        wrapper.append(img_block)
+
+    # 🔹 მთავარი სურათი: <img> ან <source srcset>
+    main_img_url = ""
+    img_block = soup.select_one("div.text-align-center img")
+    if img_block and img_block.get("src"):
+        main_img_url = img_block["src"].strip()
+
+    if not main_img_url:
+        source_block = soup.select_one("div.text-align-center source")
+        if source_block and source_block.get("srcset"):
+            main_img_url = source_block["srcset"].split(",")[0].split()[0].strip()
+
+    if main_img_url:
+        img_tag = soup.new_tag("img", src=main_img_url, alt="Main Image")
+        wrapper.append(img_tag)
 
     # 🔹 articles
     articles = soup.find_all("article", class_="blog-details-rich")
