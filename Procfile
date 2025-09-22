@@ -1,1 +1,1 @@
-gunicorn blog_scraper_skuad:app
+web: gunicorn blog_scraper_clean:app
