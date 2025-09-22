@@ -1,8 +1,7 @@
 services:
   - type: web
-    name: gigiunaa
+    name: skuad-blog-scraper
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn blog_scraper_clean:app
-    autoDeploy: true
+    startCommand: gunicorn blog_scraper_skuad:app
