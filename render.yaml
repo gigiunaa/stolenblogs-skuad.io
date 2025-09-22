@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: skuad-blog-scraper
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn blog_scraper_clean_skuad:app"
+    autoDeploy: true
